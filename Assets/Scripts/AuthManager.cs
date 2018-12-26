@@ -12,6 +12,9 @@ public class AuthManager : MonoBehaviour {
     [SerializeField] private InputField inputFieldEmail = null;
     [SerializeField] private InputField inputFieldPassword = null;
 
+    [SerializeField] private GameObject LoginGroup = null;
+    [SerializeField] private GameObject RegisterGroup = null;
+
     void Start () {
         InitializeFirebase();
     }
@@ -63,7 +66,44 @@ public class AuthManager : MonoBehaviour {
             Firebase.Auth.FirebaseUser newUser = task.Result;
             Debug.LogFormat("Firebase user created successfully: {0} ({1})",
                 newUser.DisplayName, newUser.UserId);
+
+            ShowLoginGroup();
         });
     }
 
+    public void LoginUser()
+    {
+
+        string email = inputFieldEmail.text;
+        string password = inputFieldPassword.text;
+
+        auth.SignInWithEmailAndPasswordAsync(email, password).ContinueWith(task => {
+            if (task.IsCanceled)
+            {
+                Debug.LogError("SignInWithEmailAndPasswordAsync was canceled.");
+                return;
+            }
+            if (task.IsFaulted)
+            {
+                Debug.LogError("SignInWithEmailAndPasswordAsync encountered an error: " + task.Exception);
+                return;
+            }
+
+            Firebase.Auth.FirebaseUser newUser = task.Result;
+            Debug.LogFormat("User signed in successfully: {0} ({1})",
+                newUser.DisplayName, newUser.UserId);
+        });
+    }
+
+    public void ShowLoginGroup()
+    {
+        LoginGroup.SetActive(true);
+        RegisterGroup.SetActive(false);
+    }
+
+    public void ShowRegisterGroup()
+    {
+        LoginGroup.SetActive(false);
+        RegisterGroup.SetActive(true);
+    }
 }
